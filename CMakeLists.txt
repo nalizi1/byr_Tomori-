@@ -75,7 +75,8 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME}
         Core/Src/cmd.c
         Core/Src/hash.c
-        Core/Src/led.c)
+        Core/Src/led.c
+        Core/Src/flash_store.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

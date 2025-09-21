@@ -39,5 +39,7 @@ void CMD_Add(char *cmd_name, char *cmd_usage, void (*cmd_func)(int argc, char *a
 void CMD_HelpFunc(int argc, char *argv[]);
 
 void CMD_Hello(int *argc, char *argv[]);
-
+void CMD_Set_Mode(int *argc, char *argv[]);
+void CMD_Set_Brightness(int *argc, char *argv[]);
 #endif //CMD_H
+

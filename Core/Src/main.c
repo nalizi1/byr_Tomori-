@@ -7,7 +7,7 @@
   * @attention
   *
   * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
+  * All rights reserved.P
   *
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
@@ -97,6 +97,8 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   CMD_Init();
+  LED_Init();
+  HAL_Delay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,7 +106,7 @@ int main(void)
   while (1)
   {
     CMD_Run();
-    LED_Board_Alive();
+    //Board_Alive();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
