@@ -34,6 +34,9 @@
     <list default="true" id="bae2b462-bf7b-497b-9189-a3d736a7e04f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Core/Inc/cmd.h" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Inc/cmd.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Src/cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/cmd.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Src/led.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/led.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Core/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Core/Src/stm32f4xx_it.c" beforeDir="false" afterPath="$PROJECT_DIR$/Core/Src/stm32f4xx_it.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -489,7 +492,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758440485388</updated>
-      <workItem from="1758440515117" duration="15204000" />
+      <workItem from="1758440515117" duration="16420000" />
     </task>
     <servers />
   </component>
@@ -511,7 +514,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Core/Src/led.c</url>
-          <line>27</line>
+          <line>30</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
