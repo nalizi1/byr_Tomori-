@@ -106,7 +106,7 @@ int main(void)
   while (1)
   {
     CMD_Run();
-    //Board_Alive();
+    Board_Alive();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

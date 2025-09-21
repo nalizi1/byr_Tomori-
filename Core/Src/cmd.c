@@ -193,7 +193,6 @@ void CMD_FuncInit(void) {
     CMD_Add("hello", "hello\r\n", CMD_Hello);
     CMD_Add("set_mode", "set LED mode", CMD_Set_Mode);
     CMD_Add("set_brightness", "set brightness", CMD_Set_Brightness);
-    uprintf("==cmd init done==\r\n");
 }
 
 /**

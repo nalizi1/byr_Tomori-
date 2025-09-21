@@ -16,7 +16,7 @@
 #define PRINT_BUFFER_SIZE 128
 #define DMA_BUFFER_SIZE 128
 
-#define CMD_UART huart1
+#define CMD_UART huart3
 
 struct cmd_info
 {

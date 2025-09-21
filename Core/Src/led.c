@@ -20,8 +20,11 @@ static float breathe_angle = 0.0f;
 static float breathe_delta_angle = 0.0f;
 
 void Board_Alive(void) {
+    static uint32_t last_tick = 0;
+    if (HAL_GetTick() - last_tick < 1000) return;
+    last_tick = HAL_GetTick();
     HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-    HAL_Delay(100);
+    uprintf("{\"evt\":\"status\",\"uptime\":%d,\"mode\":\"%d\",\"hz\":%d,\"period_ms\":%d,\"brightness\":%d,\"qlen_rx\":0,\"qlen_tx\":0,\"dropped\":0}\r\n", HAL_GetTick(), led0.mode, (int)(led0.blink_frequency), (int)(led0.breathing_period), led0.brightness); // 每秒打印一次状态
 }
 
 void LED_Init(void) {
