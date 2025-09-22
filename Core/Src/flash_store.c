@@ -1,8 +1,7 @@
 #include "flash_store.h"
 #include "stm32f4xx_hal.h"
-#include <string.h> // Include string.h for memcpy
+#include <string.h>
 
-// Use the last sector of the flash memory (Sector 11 for STM32F407VG, 128KB)
 #define FLASH_STORAGE_ADDRESS 0x080E0000
 
 void Flash_Write_LED_State(LED* led_state) {
@@ -16,8 +15,7 @@ void Flash_Write_LED_State(LED* led_state) {
     EraseInitStruct.NbSectors = 1;
     uint32_t SectorError = 0;
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
-        // Error occurred while erasing sector
-        // You can add error handling here
+        // Error occurred while sector erase.
         HAL_FLASH_Lock();
         return;
     }
@@ -28,7 +26,6 @@ void Flash_Write_LED_State(LED* led_state) {
     for (size_t i = 0; i < sizeof(LED) / sizeof(uint32_t); i++) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data[i]) != HAL_OK) {
             // Error occurred while programming
-            // You can add error handling here
             break;
         }
         address += 4;

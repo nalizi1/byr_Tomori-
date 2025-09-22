@@ -66,52 +66,54 @@ void LED_Init(void) {
 void LED_ON(void) {
     led0.mode = ON;
     led0.brightness = 255;
-    Flash_Write_LED_State(&led0);
     LED_SetBrightness(led0.brightness);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 }
 void LED_OFF(void) {
     led0.mode = OFF;
-    Flash_Write_LED_State(&led0);
     HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+    Flash_Write_LED_State(&led0);
+
 }
 
 void LED_SetBrightness(uint8_t brightness) {
     if (brightness > 255) brightness = 255;
     uint8_t current_brightness;
     led0.brightness = brightness;
-    //Flash_Write_LED_State(&led0);
+    
     current_brightness = -led0.brightness + 255;
     uint16_t pulse = (current_brightness * (htim3.Init.Period + 1)) / 255;
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, pulse);
+
+    if(led0.mode != BLINKING && led0.mode != BREATHING) {
+        Flash_Write_LED_State(&led0);
+    }
 }
 
 void LED_StartBlink(float freq) {
     led0.mode = BLINKING;
     led0.blink_frequency = freq;
-    Flash_Write_LED_State(&led0);
-    // Stop timer before changing settings
     HAL_TIM_Base_Stop_IT(&htim4);
-    // Calculate PSC for desired frequency
+    //计算预分频器
     uint32_t psc = 168000000UL / 2 / 2 / 1000.0 / led0.blink_frequency - 1 ;
     __HAL_TIM_SET_PRESCALER(&htim4, psc);
     __HAL_TIM_SET_AUTORELOAD(&htim4, 999);
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_Base_Start_IT(&htim3);
+    Flash_Write_LED_State(&led0);
 
 }
 
 void LED_StopBlink(void) {
     led0.mode = ON;
-    Flash_Write_LED_State(&led0);
     HAL_TIM_Base_Stop_IT(&htim4);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    Flash_Write_LED_State(&led0);
 }
 
 void LED_StartBreathing(float period_ms) {
     led0.mode = BREATHING;
     led0.breathing_period = period_ms;
-    Flash_Write_LED_State(&led0);
     HAL_TIM_Base_Stop_IT(&htim4);
     __HAL_TIM_SET_PRESCALER(&htim4, 839);
     __HAL_TIM_SET_AUTORELOAD(&htim4, 999);
@@ -120,33 +122,34 @@ void LED_StartBreathing(float period_ms) {
     breathe_angle = 0.0f; // Reset angle
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_Base_Start_IT(&htim3);
+    Flash_Write_LED_State(&led0);
 }
 
 void LED_StopBreathing(void) {
     led0.mode = ON;
-    Flash_Write_LED_State(&led0);
     HAL_TIM_Base_Stop_IT(&htim4);
     LED_SetBrightness(led0.brightness);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 }
 
-// TIM4 interrupt callback
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM4 ) {
-        if(led0.mode == BLINKING){
-            static uint8_t blink_state = 0;
-            blink_state = !blink_state;
-            if (blink_state) {
-                HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-            } else {
-                HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-            }
-        }
-        else if(led0.mode == BREATHING) {
-            breathe_angle += breathe_delta_angle;
-            if (breathe_angle >= 2 * M_PI) breathe_angle -= 2 * M_PI;
-            uint8_t brightness = 128 + (int)(127 * sinf( breathe_angle));
-            LED_SetBrightness(brightness);
+        switch(led0.mode) {
+            case BLINKING:
+                static uint8_t blink_state = 0;
+                blink_state = !blink_state;
+                if (blink_state) {
+                    HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+                } else {
+                    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+                }
+                break;
+            case BREATHING:
+                breathe_angle += breathe_delta_angle;
+                if (breathe_angle >= 2 * M_PI) breathe_angle -= 2 * M_PI;
+                uint8_t brightness = 128 + (int)(127 * sinf( breathe_angle));
+                LED_SetBrightness(brightness);
+                break;
         }
     }
 }
@@ -202,8 +205,5 @@ void CMD_Set_Brightness (int *argc, char *argv[]) {
         return;
     }
 }
-
-
-/* 持久化 */
 
 
