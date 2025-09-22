@@ -34,4 +34,7 @@ void LED_StopBreathing(void);
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
+void CMD_Set_Mode(int *argc, char *argv[]);
+void CMD_Set_Brightness (int *argc, char *argv[]);
+
 #endif //LED_H

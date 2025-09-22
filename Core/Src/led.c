@@ -24,25 +24,26 @@ void Board_Alive(void) {
     if (HAL_GetTick() - last_tick < 1000) return;
     last_tick = HAL_GetTick();
     HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-    uprintf("{\"evt\":\"status\",\"uptime\":%d,\"mode\":\"%d\",\"hz\":%d,\"period_ms\":%d,\"brightness\":%d,\"qlen_rx\":0,\"qlen_tx\":0,\"dropped\":0}\r\n", HAL_GetTick(), led0.mode, (int)(led0.blink_frequency), (int)(led0.breathing_period), led0.brightness); // 每秒打印一次状态
+    uprintf("{\"evt\":\"status\",\"uptime\":%d,\"mode\":\"%d\",\"hz\":%d,\"period_ms\":%d}\r\n", 
+            HAL_GetTick(), led0.mode, (int)(led0.blink_frequency), (int)(led0.breathing_period), led0.brightness); // 每秒打印一次状态
 }
 
 void LED_Init(void) {
+    // 从Flash中恢复LED状态
     Flash_Read_LED_State(&led0);
 
-    // Check if the read data is valid. If not, initialize to a default state.
-    if (led0.mode > BLINKING) { // Assuming BLINKING is the last valid enum value
+    // 默认值
+    if (led0.mode > BLINKING) {
         led0.mode = OFF;
         led0.brightness = 0;
         led0.blink_frequency = 0;
         led0.breathing_period = 0;
-        Flash_Write_LED_State(&led0); // Write the default state to flash
+        Flash_Write_LED_State(&led0);
     }
-
+    // 开灯
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0); // Initial brightness 0
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
 
-    // Restore LED state from flash
     switch (led0.mode) {
         case ON:
             LED_ON();
@@ -57,7 +58,6 @@ void LED_Init(void) {
             LED_StartBreathing(led0.breathing_period);
             break;
         default:
-            // This case should ideally not be reached if the check above is solid
             LED_OFF();
             break;
     }
@@ -85,7 +85,7 @@ void LED_SetBrightness(uint8_t brightness) {
     uint16_t pulse = (current_brightness * (htim3.Init.Period + 1)) / 255;
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, pulse);
 
-    if(led0.mode != BLINKING && led0.mode != BREATHING) {
+    if(led0.mode == ON) {
         Flash_Write_LED_State(&led0);
     }
 }
@@ -134,9 +134,10 @@ void LED_StopBreathing(void) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM4 ) {
+        static uint8_t blink_state = 0;
         switch(led0.mode) {
             case BLINKING:
-                static uint8_t blink_state = 0;
+
                 blink_state = !blink_state;
                 if (blink_state) {
                     HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
@@ -193,9 +194,6 @@ void CMD_Set_Brightness (int *argc, char *argv[]) {
         uprintf("Usage: set_brightness <value>\r\n");
         return;
     } else {
-        if(led0.mode == BLINKING) {
-            LED_StopBlink();
-        }
         if(led0.mode == BREATHING) {
             LED_StopBreathing();
         }

@@ -62,8 +62,7 @@ WiFiClient sseClient;
 bool clientConnected = false;
 // SSE keepalive
 unsigned long sseLastKeepalive = 0;
-const unsigned long SSE_KEEPALIVE_MS = 15000; // 15 seconds
-
+const unsigned long SSE_KEEPALIVE_MS = 15000;
 // CORS 辅助
 void addCORS() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -91,31 +90,29 @@ void handleSend() {
 void handleEvents() {
   WiFiClient client = server.client();
   if (client.connected()) {
+    if (!clientConnected) {
+      Serial.println("set_mode on");
+    }
+    
     sseClient = client;
     clientConnected = true;
 
-    Serial.println("set_mode on");  //连接指令
-
-    // 记录连接时间，用于 keepalive
     sseLastKeepalive = millis();
 
-    // 设置HTTP头
     client.print("HTTP/1.1 200 OK\r\n");
     client.print("Content-Type: text/event-stream\r\n");
     client.print("Cache-Control: no-cache\r\n");
     client.print("Connection: keep-alive\r\n\r\n");
 
-    // 建议：设置自动重连间隔
     sseClient.print("retry: 5000\n\n");
 
-    // 可选：告知前端已连接
     sseClient.print("data: {\"evt\":\"connected\"}\n\n");
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  WiFi.mode(WIFI_AP);                         // 仅 AP；如需有效 RSSI，可改为 WIFI_AP_STA 并连接路由
+  WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(AP_IP, AP_GW, AP_MASK);
   WiFi.softAP(AP_SSID, AP_PASS);
 
@@ -130,7 +127,7 @@ void loop() {
 
   // 检查串口是否有数据 → 转发给网页
   if (Serial.available()) {
-    String line = Serial.readStringUntil('\n');     // 期望下位机每条 JSON 以 \n 结尾
+    String line = Serial.readStringUntil('\n');
     if (line.endsWith("\r")) line.remove(line.length()-1);
     line.trim();
 
@@ -162,7 +159,7 @@ void loop() {
     }
   }
 
-  // 发送 SSE 注释行心跳，避免代理/NAT 在空闲时关闭连接
+  // 发送 SSE 注释行心跳
   if (clientConnected && sseClient && sseClient.connected()) {
     if (millis() - sseLastKeepalive >= SSE_KEEPALIVE_MS) {
       sseClient.print(": ping\n\n");
